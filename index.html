@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shingeki no Kyojin — Attack on Titan (O'zbekcha Fan Portal)</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Cinzel & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        aot: {
+                            dark: '#090d16',
+                            slate: '#0f172a',
+                            steel: '#1e293b',
+                            crimson: '#991b1b',
+                            blood: '#dc2626',
+                            gold: '#d97706',
+                            amber: '#f59e0b',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Maxsus skrollbar va asosiy stillar */
+        body {
+            background-color: #090d16;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #991b1b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #dc2626;
+        }
+
+        /* Epik tekst effekti */
+        .epic-title {
+            text-shadow: 0 4px 25px rgba(220, 38, 38, 0.5), 0 0 10px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Glassmorphism va Dark Fantasy kartochka */
+        .aot-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .aot-card:hover {
+            border-color: rgba(220, 38, 38, 0.7);
+            box-shadow: 0 15px 35px -5px rgba(153, 27, 27, 0.35), 0 0 15px rgba(217, 119, 6, 0.2);
+            transform: translateY(-6px);
+        }
+
+        /* Uchta Devor (Maria, Rose, Sina) konsentrik halqalari */
+        .wall-ring {
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        /* Chaqmoq effekti (Titan transformatsiyasi uchun) */
+        @keyframes lightningFlash {
+            0%, 100% { opacity: 0; }
+            10%, 30% { opacity: 0.8; background: rgba(245, 158, 11, 0.25); }
+            20% { opacity: 0.1; }
+        }
+        .lightning-active {
+            animation: lightningFlash 0.6s ease-out;
+        }
+
+        /* Canvas orqa fon uchqunlari */
+        #embers-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="relative selection:bg-red-800 selection:text-white">
+
+    <!-- Uchayotgan uchqunlar va kul zarralari uchun Canvas -->
+    <canvas id="embers-canvas"></canvas>
+
+    <!-- Chaqmoq effekti qatlami -->
+    <div id="lightning-overlay" class="fixed inset-0 pointer-events-none z-50"></div>
+
+    <!-- Navigatsiya Paneli -->
+    <nav class="fixed top-0 w-full z-40 bg-slate-950/85 backdrop-blur-md border-b border-amber-600/20 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#hero" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-700 to-slate-900 border border-amber-500/50 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-shield-halved text-amber-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-cinzel font-bold text-lg sm:text-xl tracking-wider text-white block leading-none">SHINGEKI</span>
+                        <span class="text-[10px] tracking-[0.25em] text-amber-500 font-semibold uppercase">No Kyojin</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Menyu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#walls" class="text-sm font-medium text-slate-300 hover:text-amber-400 transition-colors">Devorlar</a>
+                    <a href="#regiments" class="text-sm font-medium text-slate-300 hover:text-amber-400 transition-colors">Bo'linmalar</a>
+                    <a href="#titans" class="text-sm font-medium text-slate-300 hover:text-amber-400 transition-colors">9 Asl Titan</a>
+                    <a href="#characters" class="text-sm font-medium text-slate-300 hover:text-amber-400 transition-colors">Qahramonlar</a>
+                    <a href="#seasons" class="text-sm font-medium text-slate-300 hover:text-amber-400 transition-colors">Xronologiya</a>
+                </div>
+
+                <!-- Ovoz/Shior tugmasi va Mobil menyu tugmasi -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="triggerSalute()" class="hidden sm:flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-900/60 hover:bg-red-700 border border-red-500/40 text-xs font-cinzel font-bold tracking-wider text-amber-200 transition-all shadow-md active:scale-95" title="Yuragingizni bag'ishlang!">
+                        <i class="fa-solid fa-hand-fist text-amber-400"></i>
+                        <span>SHINZOU WO SASAGEYO</span>
+                    </button>
+
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-btn" class="md:hidden p-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobil Menyu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 border-b border-amber-600/30 px-4 pt-2 pb-5 space-y-2">
+            <a href="#walls" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-red-900/40 hover:text-amber-400">Uchta Devor</a>
+            <a href="#regiments" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-red-900/40 hover:text-amber-400">Harbiy Bo'linmalar</a>
+            <a href="#titans" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-red-900/40 hover:text-amber-400">9 ta Asl Titan</a>
+            <a href="#characters" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-red-900/40 hover:text-amber-400">Asosiy Qahramonlar</a>
+            <a href="#seasons" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-red-900/40 hover:text-amber-400">Fasllar Xronologiyasi</a>
+            <button onclick="triggerSalute()" class="w-full mt-2 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-red-800 text-amber-200 font-cinzel font-bold text-sm">
+                <i class="fa-solid fa-hand-fist"></i>
+                <span>SHINZOU WO SASAGEYO!</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Xabarnoma Toast (Alert o'rniga) -->
+    <div id="salute-toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-500 pointer-events-none">
+        <div class="bg-slate-900/95 border-l-4 border-amber-500 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center space-x-4 max-w-sm backdrop-blur-md">
+            <div class="w-10 h-10 rounded-full bg-red-900/60 flex items-center justify-center shrink-0 border border-amber-500/40">
+                <i class="fa-solid fa-fire text-amber-400 text-lg"></i>
+            </div>
+            <div>
+                <h4 class="font-cinzel font-bold text-amber-400 text-sm">SHINZOU WO SASAGEYO!</h4>
+                <p class="text-xs text-slate-300 mt-0.5">Yuragingizni insoniyat ozodligi yo'lida bag'ishladingiz!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. HERO QISMI -->
+    <header id="hero" class="relative min-h-screen flex items-center justify-center pt-20 pb-16 overflow-hidden z-10">
+        <!-- Fon gradyentlari va Parallax qatlam -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-950/35 via-slate-950 to-[#090d16] -z-10"></div>
+        
+        <!-- Gigant Titan Silueti (SVG Dekoratsiya) -->
+        <div id="parallax-bg" class="absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none -z-10">
+            <svg class="w-[700px] h-[700px] text-red-600" viewBox="0 0 200 200" fill="currentColor">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="4 2"/>
+                <circle cx="100" cy="100" r="70" fill="none" stroke="#d97706" stroke-width="0.8"/>
+                <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="0.5"/>
+                <path d="M100 10 L103 40 L100 35 L97 40 Z" fill="#d97706"/>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Chap ustun: Matn va Tugmalar -->
+                <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-red-950/70 border border-red-600/40 text-amber-400 text-xs font-semibold tracking-widest uppercase">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                        <span>845-Yil • Paradis Oroli</span>
+                    </div>
+
+                    <h1 class="font-cinzel text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] epic-title">
+                        SHINGEKI NO <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-amber-500">KYOJIN</span>
+                        <span class="block text-xl sm:text-2xl md:text-3xl font-bold text-slate-300 mt-3 tracking-widest">ATTACK ON TITAN</span>
+                    </h1>
+
+                    <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                        Insoniyat yuz yildan ortiq vaqt davomida ulkan devorlar ortida tinch hayot kechirdi. Ammo bir kun kelib devorlardan ham balandroq <span class="text-red-400 font-semibold">Bahaybat Titan</span> paydo bo'ldi va soxta tinchlikni chilparchin qildi. Ozodlik uchun shafqatsiz kurash boshlandi!
+                    </p>
+
+                    <!-- Harakat tugmalari -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <a href="#regiments" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-red-800 to-red-600 hover:from-red-700 hover:to-red-500 text-white font-cinzel font-bold text-sm tracking-wider shadow-lg shadow-red-900/50 border border-red-400/30 flex items-center justify-center space-x-3 transition-all transform hover:scale-105">
+                            <i class="fa-solid fa-door-open text-amber-300"></i>
+                            <span>Devorni kesib o'tish</span>
+                        </a>
+                        <a href="#titans" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-400 font-cinzel font-bold text-sm tracking-wider border border-amber-600/40 hover:border-amber-500 flex items-center justify-center space-x-3 transition-all transform hover:scale-105">
+                            <i class="fa-solid fa-skull text-red-500"></i>
+                            <span>Titanlarni o'rganish</span>
+                        </a>
+                    </div>
+
+                    <!-- Qisqa statistik ko'rsatkichlar -->
+                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80 max-w-lg mx-auto lg:mx-0">
+                        <div>
+                            <div class="font-cinzel text-2xl sm:text-3xl font-bold text-amber-500">50m</div>
+                            <div class="text-xs text-slate-400 uppercase tracking-wider">Devor balandligi</div>
+                        </div>
+                        <div>
+                            <div class="font-cinzel text-2xl sm:text-3xl font-bold text-red-500">9 Ta</div>
+                            <div class="text-xs text-slate-400 uppercase tracking-wider">Asl Titan kuchi</div>
+                        </div>
+                        <div>
+                            <div class="font-cinzel text-2xl sm:text-3xl font-bold text-slate-200">3 Ta</div>
+                            <div class="text-xs text-slate-400 uppercase tracking-wider">Himoya halqasi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- O'ng ustun: Uchta Devor (Maria, Rose, Sina) Interaktiv Ramzi -->
+                <div id="walls" class="lg:col-span-5 flex flex-col items-center justify-center">
+                    <div class="relative w-72 h-72 sm:w-96 sm:h-96 flex items-center justify-center animate-float">
+                        <!-- Wall Maria (Tashqi halqa) -->
+                        <div onclick="selectWall('maria')" id="ring-maria" class="wall-ring w-full h-full border-4 border-red-800/60 bg-red-950/10 hover:border-red-500 hover:bg-red-900/20 cursor-pointer flex items-start justify-center pt-3 shadow-[0_0_40px_rgba(153,27,27,0.2)]">
+                            <span class="px-2.5 py-0.5 rounded bg-slate-950/90 border border-red-700/50 text-[11px] font-cinzel font-bold text-red-400 tracking-widest">WALL MARIA (480 km)</span>
+                        </div>
+
+                        <!-- Wall Rose (O'rta halqa) -->
+                        <div onclick="selectWall('rose')" id="ring-rose" class="wall-ring w-[68%] h-[68%] border-4 border-amber-600/60 bg-amber-950/15 hover:border-amber-400 hover:bg-amber-900/25 cursor-pointer flex items-start justify-center pt-2.5">
+                            <span class="px-2 py-0.5 rounded bg-slate-950/90 border border-amber-600/50 text-[10px] font-cinzel font-bold text-amber-400 tracking-widest">WALL ROSE (380 km)</span>
+                        </div>
+
+                        <!-- Wall Sina (Ichki halqa) -->
+                        <div onclick="selectWall('sina')" id="ring-sina" class="wall-ring w-[38%] h-[38%] border-4 border-slate-400/70 bg-slate-800/40 hover:border-white hover:bg-slate-700/50 cursor-pointer flex flex-col items-center justify-center text-center p-2">
+                            <i class="fa-solid fa-crown text-amber-400 text-sm mb-1"></i>
+                            <span class="text-[10px] font-cinzel font-bold text-white tracking-wider leading-tight">WALL SINA<br><span class="text-[8px] text-slate-300 font-sans">250 km</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Tanlangan devor haqida tezkor ma'lumot paneli -->
+                    <div id="wall-info-box" class="mt-6 w-full max-w-md p-4 rounded-xl bg-slate-900/90 border border-amber-600/30 text-center transition-all">
+                        <div class="flex items-center justify-center space-x-2 text-amber-400 font-cinzel font-bold text-sm">
+                            <i class="fa-solid fa-fort-awesome"></i>
+                            <span id="wall-title">Wall Maria — Tashqi Qalqon</span>
+                        </div>
+                        <p id="wall-desc" class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Insoniyatning eng tashqi va eng katta devori. 845-yilda Bahaybat va Zirhli Titanlar hujumi natijasida Shiganshina tumani orqali buzib kirilgan. (Boshqa devorlarni bosib ko'ring)
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. BO'LINMALAR (REGIMENTS) -->
+    <section id="regiments" class="py-20 relative z-10 border-t border-slate-800/70 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-amber-500 font-cinzel text-xs font-bold tracking-[0.3em] uppercase">Paradis Qurolli Kuchlari</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">Harbiy Bo'linmalar</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent mx-auto mt-4"></div>
+                <p class="text-slate-400 text-sm sm:text-base mt-4">
+                    Insoniyatni Titanlardan himoya qilish va tashqi dunyoni o'rganish uchun tashkil etilgan uchta asosiy harbiy tuzilma.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 1. Razvedka Korpusi (Survey Corps) -->
+                <div class="aot-card rounded-2xl p-7 relative overflow-hidden group flex flex-col justify-between">
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                    <div>
+                        <!-- Emblem SVG: Ozodlik Qanotlari -->
+                        <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-blue-500/40 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                            <svg class="w-10 h-10" viewBox="0 0 64 64" fill="none">
+                                <path d="M32 54C24 44 10 36 8 16C18 20 26 28 32 38C38 28 46 20 56 16C54 36 40 44 32 54Z" fill="#3b82f6" fill-opacity="0.85"/>
+                                <path d="M32 48C26 40 16 32 14 14C22 18 28 25 32 34C36 25 42 18 50 14C48 32 38 40 32 48Z" fill="#f8fafc"/>
+                            </svg>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-cinzel text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Razvedka Korpusi</h3>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-700/40">Survey Corps</span>
+                        </div>
+                        <p class="text-xs text-amber-400 font-medium mb-4 italic">"Ozodlik Qanotlari" (Jiyuu no Tsubasa)</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Devorlardan tashqariga chiqib, Titanlar bilan yuzma-yuz jang qiluvchi, tashqi dunyo xaritasini tuzuvchi va Titanlarning asl sirini ochishga intiluvchi eng jasur bo'linma. O'lim darajasi eng yuqori, ammo insoniyat umidi aynan ularda.
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                        <span>Qo'mondon: <strong class="text-slate-200">Erwin Smith / Hange</strong></span>
+                        <span class="text-blue-400 font-semibold">Xavf: 98%</span>
+                    </div>
+                </div>
+
+                <!-- 2. Garnizon (Garrison) -->
+                <div class="aot-card rounded-2xl p-7 relative overflow-hidden group flex flex-col justify-between">
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all"></div>
+                    <div>
+                        <!-- Emblem SVG: Qizil Atirgullar -->
+                        <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-red-500/40 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-shield-cat text-red-500 text-3xl"></i>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-cinzel text-xl font-bold text-white group-hover:text-red-400 transition-colors">Garnizon Polki</h3>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded bg-red-950 text-red-300 border border-red-700/40">Garrison</span>
+                        </div>
+                        <p class="text-xs text-amber-400 font-medium mb-4 italic">Ramzi: Qizil Atirgullar</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Devorlarni qo'riqlash, ta'mirlash va shahar ichidagi tartibni saqlash uchun mas'ul bo'lgan eng ko'p sonli harbiy bo'linma. Titanlar devorga hujum qilganda birinchi bo'lib artilleriya va ODM qurilmalari bilan mudofaaga kirishadi.
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                        <span>Qo'mondon: <strong class="text-slate-200">Dot Pixis</strong></span>
+                        <span class="text-red-400 font-semibold">Mudofaa: 95%</span>
+                    </div>
+                </div>
+
+                <!-- 3. Harbiy Politsiya (Military Police) -->
+                <div class="aot-card rounded-2xl p-7 relative overflow-hidden group flex flex-col justify-between">
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-emerald-600/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+                    <div>
+                        <!-- Emblem SVG: Yakkashox -->
+                        <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-emerald-500/40 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-chess-knight text-emerald-400 text-3xl"></i>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-cinzel text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">Harbiy Politsiya</h3>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700/40">Military Police</span>
+                        </div>
+                        <p class="text-xs text-amber-400 font-medium mb-4 italic">Ramzi: Yashil Yakkashox (Unicorn)</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Faqat bitiruvchilarning eng yaxshi 10 taligi kira oladigan elit bo'linma. Ular Wall Sina ichida Qirolni qo'riqlaydi, qonun ustuvorligini ta'minlaydi va Titanlar bilan deyarli to'qnash kelmaydi.
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                        <span>Qo'mondon: <strong class="text-slate-200">Nile Dok</strong></span>
+                        <span class="text-emerald-400 font-semibold">Nufuz: 90%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 9 TA ASL TITAN (THE NINE TITANS) -->
+    <section id="titans" class="py-20 relative z-10 border-t border-slate-800/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-red-500 font-cinzel text-xs font-bold tracking-[0.3em] uppercase">Ymir Fritz Merosi</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">9 ta Asl Titan</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto mt-4"></div>
+                <p class="text-slate-400 text-sm sm:text-base mt-4">
+                    Inson ongini saqlab qoluvchi va g'ayritabiiy kuchga ega bo'lgan 9 ta afsonaviy Titan. Batafsil ma'lumot olish uchun istalgan Titan ustiga bosing.
+                </p>
+            </div>
+
+            <!-- Filtr tugmalari -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
+                <button onclick="filterTitans('all')" class="titan-filter-btn active px-4 py-2 rounded-lg text-xs font-cinzel font-bold tracking-wider bg-red-700 text-white border border-red-500 transition-all">Barchasi (9)</button>
+                <button onclick="filterTitans('paradis')" class="titan-filter-btn px-4 py-2 rounded-lg text-xs font-cinzel font-bold tracking-wider bg-slate-900 text-slate-300 hover:text-white border border-slate-700 transition-all">Paradis Qo'lida</button>
+                <button onclick="filterTitans('marley')" class="titan-filter-btn px-4 py-2 rounded-lg text-xs font-cinzel font-bold tracking-wider bg-slate-900 text-slate-300 hover:text-white border border-slate-700 transition-all">Marley Jangchilari</button>
+                <button onclick="filterTitans('colossal-class')" class="titan-filter-btn px-4 py-2 rounded-lg text-xs font-cinzel font-bold tracking-wider bg-slate-900 text-slate-300 hover:text-white border border-slate-700 transition-all">Ulkan O'lcham (15m+)</button>
+            </div>
+
+            <!-- Titanlar Gridi (JavaScript orqali to'ldiriladi) -->
+            <div id="titans-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Kartochkalar JS orqali generatsiya qilinadi -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ASOSIY QAHRAMONLAR -->
+    <section id="characters" class="py-20 relative z-10 border-t border-slate-800/70 bg-slate-950/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-amber-500 font-cinzel text-xs font-bold tracking-[0.3em] uppercase">Taqdirni O'zgartirganlar</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">Asosiy Qahramonlar</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent mx-auto mt-4"></div>
+                <p class="text-slate-400 text-sm sm:text-base mt-4">
+                    104-chi Kursantlar korpusi bitiruvchilari va afsonaviy qo'mondonlarning jangovar ko'rsatkichlari.
+                </p>
+            </div>
+
+            <div id="characters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Qahramonlar JS orqali generatsiya qilinadi -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. FASLLAR XRONOLOGIYASI (SEASONS 1-4) -->
+    <section id="seasons" class="py-20 relative z-10 border-t border-slate-800/70">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-red-500 font-cinzel text-xs font-bold tracking-[0.3em] uppercase">Tarixiy Voqealar</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">Fasllar Xronologiyasi</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto mt-4"></div>
+            </div>
+
+            <!-- Timeline vertikal chizig'i -->
+            <div class="relative border-l-2 border-red-800/60 ml-4 sm:ml-8 space-y-12 pb-4">
+                
+                <!-- 1-Fasl -->
+                <div class="relative pl-8 sm:pl-12 group">
+                    <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-red-600 border-4 border-slate-950 group-hover:scale-125 transition-transform shadow-[0_0_15px_#dc2626]"></div>
+                    <div class="aot-card rounded-2xl p-6 sm:p-8">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-md bg-red-950 text-red-400 font-cinzel font-bold text-xs border border-red-700/40">1-FASL (2013) • 25 Qism</span>
+                            <span class="text-xs text-amber-400 font-semibold"><i class="fa-solid fa-fire-flame-curved mr-1"></i> Shiganshina va Trost jangi</span>
+                        </div>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-white mb-3">Devorlar Qulashi va Umid Uchquni</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            845-yilda Bahaybat va Zirhli Titanlar Wall Maria darvozasini buzadi. Onasini yo'qotgan Eren Yeager barcha Titanlarni yo'q qilishga qasam ichadi. 5 yil o'tib, Trost tumanidagi jangda Eren o'zida <span class="text-amber-400 font-medium">Hujumchi Titan</span> kuchini kashf etadi va insoniyat ilk bor g'alaba qozonadi.
+                        </p>
+                        <div class="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <strong class="text-amber-500">Muhim burilish:</strong> Ayol Titan (Annie Leonhart) bilan o'rmondagi va Stohess tumanidagi shafqatsiz to'qnashuv.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2-Fasl -->
+                <div class="relative pl-8 sm:pl-12 group">
+                    <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-amber-500 border-4 border-slate-950 group-hover:scale-125 transition-transform shadow-[0_0_15px_#f59e0b]"></div>
+                    <div class="aot-card rounded-2xl p-6 sm:p-8">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-md bg-amber-950 text-amber-400 font-cinzel font-bold text-xs border border-amber-700/40">2-FASL (2017) • 12 Qism</span>
+                            <span class="text-xs text-red-400 font-semibold"><i class="fa-solid fa-mask mr-1"></i> Xiyonat va Devor Sirlari</span>
+                        </div>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-white mb-3">Ichki Dushmanlar va Koordinata Kuchi</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            Wall Rose ichida kutilmaganda Titanlar paydo bo'ladi. Utgard qal'asidagi qamalda Ymir o'zining Jag' Titan ekanligini ochadi. Eng katta zarba esa Reiner Braun va Bertolt Hooverning o'zlarini <span class="text-red-400 font-medium">Zirhli va Bahaybat Titan</span> deb e'lon qilishidir.
+                        </p>
+                        <div class="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <strong class="text-amber-500">Muhim burilish:</strong> Eren qirollik qoniga ega Dina Fritz Titaniga tegib, "Asoschi Titan"ning boshqaruv kuchini uyg'otadi.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3-Fasl -->
+                <div class="relative pl-8 sm:pl-12 group">
+                    <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-blue-500 border-4 border-slate-950 group-hover:scale-125 transition-transform shadow-[0_0_15px_#3b82f6]"></div>
+                    <div class="aot-card rounded-2xl p-6 sm:p-8">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-md bg-blue-950 text-blue-300 font-cinzel font-bold text-xs border border-blue-700/40">3-FASL (2018–2019) • 22 Qism</span>
+                            <span class="text-xs text-amber-400 font-semibold"><i class="fa-solid fa-key mr-1"></i> Yerto'la va Dengiz</span>
+                        </div>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-white mb-3">Qirollik To'ntarishi va Shiganshinaga Qaytish</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            Dastlab Razvedka korpusi soxta qirol hukumatini ag'darib, Historia Reissni taxtga o'tqazadi. So'ngra Wall Mariani qaytarib olish uchun Shiganshinaga yurish boshlanadi. Hayvon Titan, Zirhli va Bahaybat Titanlarga qarshi eng qonli jang kechadi.
+                        </p>
+                        <div class="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <strong class="text-amber-500">Muhim burilish:</strong> Grisha Yeagerning yerto'lasidagi kundaliklar orqali insoniyat halok bo'lmagani, dengiz ortida dushman Marley imperiyasi borligi fosh bo'ladi.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4-Fasl -->
+                <div class="relative pl-8 sm:pl-12 group">
+                    <div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-red-700 border-4 border-amber-400 group-hover:scale-125 transition-transform shadow-[0_0_20px_#dc2626]"></div>
+                    <div class="aot-card rounded-2xl p-6 sm:p-8 border-red-600/40">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-md bg-red-900 text-white font-cinzel font-bold text-xs border border-amber-500/50">4-FASL: FINAL (2020–2023)</span>
+                            <span class="text-xs text-red-400 font-semibold"><i class="fa-solid fa-earth-americas mr-1"></i> Yer Larzasi (The Rumbling)</span>
+                        </div>
+                        <h3 class="font-cinzel text-xl sm:text-2xl font-bold text-white mb-3">Dengiz Ortiga Hujum va Dunyo Taqdiri</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            Voqealar Marley davlatiga ko'chadi. Endi kurash "insonlar va titanlar" o'rtasida emas, balki millatlar va mafkuralar o'rtasida kechadi. Eren Yeager Paradis orolini qutqarish uchun devor ichidagi millionlab Bahaybat Titanlarni uyg'otib, <span class="text-red-500 font-bold">"Yer Larzasi" (The Rumbling)</span> ni boshlaydi.
+                        </p>
+                        <div class="text-xs text-slate-400 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                            <strong class="text-amber-500">Final:</strong> Mikasa, Armin va sobiq dushmanlar birlashib, Erenni to'xtatish va Titanlar la'natiga abadiy chek qo'yish uchun so'nggi jangga kirishadi.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-amber-600/20 py-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-shield-halved text-red-600 text-2xl"></i>
+                <div>
+                    <span class="font-cinzel font-bold text-white tracking-wider">SHINGEKI NO KYOJIN</span>
+                    <p class="text-xs text-slate-400">Hajime Isayama asari asosida yaratilgan O'zbekcha Fan Portal</p>
+                </div>
+            </div>
+
+            <div class="text-center md:text-right">
+                <p class="font-cinzel text-xs text-amber-500 tracking-widest uppercase">"Shinzou wo Sasageyo!"</p>
+                <p class="text-xs text-slate-500 mt-1">&copy; 2026 Attack on Titan Fan Community. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERAKTIV TITAN MODAL OYNASI -->
+    <div id="titan-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl transform transition-all scale-95" id="titan-modal-content">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div id="modal-icon-box" class="w-12 h-12 rounded-xl bg-red-900/50 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl">
+                        <i class="fa-solid fa-skull"></i>
+                    </div>
+                    <div>
+                        <span id="modal-jp-name" class="text-xs text-amber-400 font-semibold tracking-widest uppercase">Shingeki no Kyojin</span>
+                        <h3 id="modal-title" class="font-cinzel text-2xl font-bold text-white">Hujumchi Titan</h3>
+                    </div>
+                </div>
+                <button onclick="closeTitanModal()" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-red-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-5">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                        <span class="text-[11px] text-slate-400 block">Bo'yi</span>
+                        <strong id="modal-height" class="font-cinzel text-base text-amber-400">15 metr</strong>
+                    </div>
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                        <span class="text-[11px] text-slate-400 block">Asosiy Egalari</span>
+                        <strong id="modal-holders" class="text-xs sm:text-sm text-white">Eren Yeager, Grisha</strong>
+                    </div>
+                    <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 col-span-2 sm:col-span-1">
+                        <span class="text-[11px] text-slate-400 block">Sinfi / Tomoni</span>
+                        <strong id="modal-faction" class="text-xs sm:text-sm text-red-400">Paradis Oroli</strong>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-cinzel text-sm font-bold text-amber-500 uppercase tracking-wider mb-1.5">Maxsus Qobiliyatlari</h4>
+                    <p id="modal-abilities" class="text-sm text-slate-300 leading-relaxed bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                        Kelajakdagi merosxo'rlarning xotiralarini ko'ra olish va ozodlikka intilish kuchi.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-cinzel text-sm font-bold text-red-400 uppercase tracking-wider mb-1.5">Tarixiy Ahamiyati</h4>
+                    <p id="modal-lore" class="text-sm text-slate-400 leading-relaxed">
+                        Hech qachon qirollik irodasiga bo'ysunmagan yagona Titan.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-slate-950 px-6 py-4 border-t border-slate-800 flex justify-end">
+                <button onclick="closeTitanModal()" class="px-5 py-2 rounded-lg bg-red-800 hover:bg-red-700 text-white font-cinzel text-xs font-bold tracking-wider transition-colors">
+                    Yopish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT: Ma'lumotlar, Interaktivlik va Uchqunlar Animatsiyasi -->
+    <script>
+        // 1. 9 TA ASL TITAN MA'LUMOTLAR BAZASI
+        const nineTitansData = [
+            {
+                id: 'founding',
+                name: 'Asoschi Titan',
+                enName: 'Founding Titan',
+                jpName: 'Shiso no Kyojin',
+                height: '13m (Eren shaklida 350m+)',
+                holders: 'Ymir Fritz, Frieda Reiss, Eren Yeager',
+                faction: 'Paradis (Qirollik oilasi)',
+                category: ['paradis', 'colossal-class'],
+                icon: 'fa-crown',
+                color: 'text-amber-400',
+                shortDesc: 'Barcha Titanlarni va Eldianlar xotirasini boshqarish qobiliyatiga ega eng oliy Titan.',
+                abilities: 'Koordinata kuchi orqali barcha aqlsiz Titanlarga buyruq berish, Eldianlarning xotirasini o\'zgartirish yoki o\'chirish hamda devor ichidagi millionlab Bahaybat Titanlarni uyg\'otish.',
+                lore: 'Ymir Fritzning bevosita merosi. Karl Fritzning urushdan voz kechish qasami tufayli uzoq yillar qirollik oilasi qo\'lida kishanlangan holda saqlangan.'
+            },
+            {
+                id: 'attack',
+                name: 'Hujumchi Titan',
+                enName: 'Attack Titan',
+                jpName: 'Shingeki no Kyojin',
+                height: '15 metr',
+                holders: 'Eren Kruger, Grisha Yeager, Eren Yeager',
+                faction: 'Paradis Oroli',
+                category: ['paradis', 'colossal-class'],
+                icon: 'fa-hand-fist',
+                color: 'text-red-500',
+                shortDesc: 'Har doim ozodlik uchun oldinga intiluvchi va kelajak xotiralarini ko\'ra oluvchi jangchi.',
+                abilities: 'Kelajakdagi merosxo\'rlarning xotiralarini ko\'ra olish (vaqt paradoksi), yuqori jismoniy kuch, tez tiklanish va qattiqlashish (hardening) qobiliyati.',
+                lore: 'Tarix davomida hech qachon Marley imperiyasiga yoki qirol irodasiga bo\'ysunmagan, doimo ozodlik uchun kurashgan isyonkor Titan.'
+            },
+            {
+                id: 'colossal',
+                name: 'Bahaybat Titan',
+                enName: 'Colossal Titan',
+                jpName: 'Chō-ōgata Kyojin',
+                height: '60 metr',
+                holders: 'Bertolt Hoover, Armin Arlert',
+                faction: 'Paradis / Sobiq Marley',
+                category: ['paradis', 'marley', 'colossal-class'],
+                icon: 'fa-fire',
+                color: 'text-orange-500',
+                shortDesc: 'Vayronkor yadroviy portlash va qaynoq bug\' chiqaruvchi 60 metrlik ulkan mahluq.',
+                abilities: 'Transformatsiya paytida ulkan portlash hosil qilish, tana to\'qimalarini eritib o\'ta qaynoq bug\' chiqarish va o\'z ulkan vazni bilan shaharlarni yakson qilish.',
+                lore: '845-yilda Wall Maria darvozasini buzib, insoniyatning 100 yillik tinchligiga nuqta qo\'ygan "Vayronagarchilik Xudosi".'
+            },
+            {
+                id: 'armored',
+                name: 'Zirhli Titan',
+                enName: 'Armored Titan',
+                jpName: 'Yoroi no Kyojin',
+                height: '15 metr',
+                holders: 'Reiner Braun',
+                faction: 'Marley Jangchilari',
+                category: ['marley', 'colossal-class'],
+                icon: 'fa-shield',
+                color: 'text-slate-300',
+                shortDesc: 'Butun tanasi o\'ta mustahkam zirhli plitalar bilan qoplangan tirik qal\'a.',
+                abilities: 'Zambarak o\'qlari va qilichlarga bardosh beruvchi tabiiy zirh, ulkan tezlikda yugurib darvozalarni yorib o\'tish va ongni asab tizimiga ko\'chirish.',
+                lore: 'Wall Maria ichki darvozasini yorib kirgan Titan. Reiner Braunning ichki ruhiy azoblari bilan chambarchas bog\'liq.'
+            },
+            {
+                id: 'female',
+                name: 'Ayol Titan',
+                enName: 'Female Titan',
+                jpName: 'Megata no Kyojin',
+                height: '14 metr',
+                holders: 'Annie Leonhart',
+                faction: 'Marley Jangchilari',
+                category: ['marley'],
+                icon: 'fa-person-dress',
+                color: 'text-pink-400',
+                shortDesc: 'Yuqori chaqqonlik, jang san\'ati va boshqa Titanlar qobiliyatini o\'zlashtiruvchi universal jangchi.',
+                abilities: 'Terining ma\'lum qismlarini olmosdek qattiqlashtirish, qichqiriq orqali aqlsiz Titanlarni o\'ziga chaqirish va yuqori chidamlilik.',
+                lore: '57-ekspeditsiyada Razvedka korpusini deyarli yakson qilgan va keyinchalik o\'zini kristall ichiga muhrlagan sirli Titan.'
+            },
+            {
+                id: 'beast',
+                name: 'Hayvon Titan',
+                enName: 'Beast Titan',
+                jpName: 'Kemono no Kyojin',
+                height: '17 metr',
+                holders: 'Tom Ksaver, Zeke Yeager',
+                faction: 'Marley Jangchilari',
+                category: ['marley', 'colossal-class'],
+                icon: 'fa-paw',
+                color: 'text-amber-600',
+                shortDesc: 'Hayvon qiyofasiga ega, uzoq masofadan halokatli zarba beruvchi strategik Titan.',
+                abilities: 'Toshlarni tovush tezligidan tezroq uloqtirish, odam tilida gapirish va Zeke Yeagerning qirollik qoni tufayli orqa miya suyuqligi orqali odamlarni Titanga aylantirish.',
+                lore: 'Shiganshina jangida Razvedka korpusining asosiy qismini va qo\'mondon Erwin Smithni halok qilgan dahshatli dushman.'
+            },
+            {
+                id: 'jaw',
+                name: 'Jag\' Titan',
+                enName: 'Jaw Titan',
+                jpName: 'Agito no Kyojin',
+                height: '5 metr',
+                holders: 'Marcel, Ymir, Porco Galliard, Falco Grice',
+                faction: 'Marley / Paradis',
+                category: ['marley'],
+                icon: 'fa-teeth-open',
+                color: 'text-yellow-400',
+                shortDesc: 'Eng kichik, ammo eng chaqqon va har qanday kristallni parchalay oladigan jag\'larga ega Titan.',
+                abilities: 'O\'ta yuqori tezlik, o\'tkir tirnoqlar va War Hammer Titanning kristallini ham tishlab sindira oladigan qudratli jag\'lar (Falco shaklida uchish qobiliyati).',
+                lore: 'Kichik o\'lchami tufayli o\'rmon va shahar binolari orasida ODM askarlaridan ham tezroq harakatlana oladi.'
+            },
+            {
+                id: 'cart',
+                name: 'Arava Titan',
+                enName: 'Cart Titan',
+                jpName: 'Shariki no Kyojin',
+                height: '4 metr',
+                holders: 'Pieck Finger',
+                faction: 'Marley Jangchilari',
+                category: ['marley'],
+                icon: 'fa-truck-monster',
+                color: 'text-teal-400',
+                shortDesc: 'To\'rt oyoqli, oylar davomida Titan shaklida qola oladigan va og\'ir qurollarni tashuvchi Titan.',
+                abilities: 'G\'ayritabiiy chidamlilik (2 oygacha transformatsiyani ushlab turish), ketma-ket yuzlab marta qayta transformatsiya bo\'lish va yelkasida pulemyot/zambarak minorasini ko\'tarish.',
+                lore: 'Razvedka va logistika operatsiyalarida Marley armiyasining eng muhim taktik ustunligi.'
+            },
+            {
+                id: 'warhammer',
+                name: 'Jangovar Bolg\'a Titan',
+                enName: 'War Hammer Titan',
+                jpName: 'Sentsui no Kyojin',
+                height: '15 metr',
+                holders: 'Lara Tybur, Eren Yeager',
+                faction: 'Tybur Oilasi / Paradis',
+                category: ['paradis', 'marley', 'colossal-class'],
+                icon: 'fa-hammer',
+                color: 'text-purple-400',
+                shortDesc: 'Qattiqlashgan materiyadan istalgan qurol yaratuvchi va tanasini masofadan boshqaruvchi Titan.',
+                abilities: 'Yerdan ulkan nayzalar chiqarish, bolg\'a, arbalet va qilichlar yasash; egasi Titan bo\'ynida emas, balki yer ostidagi kristall kapsulada turib uni sim orqali boshqaradi.',
+                lore: 'Liberio hujumida Eren Yeager tomonidan yutib yuborilgan va uning kuchiga qo\'shilgan qudratli Titan.'
+            }
+        ];
+
+        // 2. ASOSIY QAHRAMONLAR MA'LUMOTLARI
+        const charactersData = [
+            {
+                name: 'Eren Yeager',
+                role: 'Hujumchi & Asoschi Titan',
+                regiment: 'Razvedka Korpusi',
+                quote: '"Agar g\'alaba qozonmasak, o\'lamiz. G\'alaba qozonsak, yashaymiz. Kurashmasang — yengilmaysan!"',
+                badgeColor: 'bg-red-900/60 text-red-300 border-red-600/40',
+                icon: 'fa-fire-flame-curved',
+                stats: { combat: 95, intelligence: 75, teamwork: 65, speed: 90 }
+            },
+            {
+                name: 'Mikasa Ackerman',
+                role: 'Elit Jangchi (Ackerman)',
+                regiment: 'Razvedka Korpusi',
+                quote: '"Bu dunyo shafqatsiz... va shu bilan birga juda go\'zal."',
+                badgeColor: 'bg-rose-950/80 text-rose-300 border-rose-600/40',
+                icon: 'fa-khanda',
+                stats: { combat: 100, intelligence: 82, teamwork: 80, speed: 98 }
+            },
+            {
+                name: 'Levi Ackerman',
+                role: 'Insoniyatning Eng Kuchli Askari',
+                regiment: 'Kapitan • Razvedka Korpusi',
+                quote: '"Shunday tanlov qilki, keyin hech qachon afsuslanmaydigan bo\'l."',
+                badgeColor: 'bg-slate-800 text-amber-300 border-amber-500/40',
+                icon: 'fa-bolt',
+                stats: { combat: 100, intelligence: 90, teamwork: 85, speed: 100 }
+            },
+            {
+                name: 'Armin Arlert',
+                role: 'Strateg & Bahaybat Titan',
+                regiment: '15-Qo\'mondon • Razvedka',
+                quote: '"Biror narsani o\'zgartira oladigan odam — o\'zi uchun eng qadrli narsadan voz kecha oladigan odamdir."',
+                badgeColor: 'bg-blue-950/80 text-blue-300 border-blue-600/40',
+                icon: 'fa-brain',
+                stats: { combat: 65, intelligence: 100, teamwork: 96, speed: 72 }
+            },
+            {
+                name: 'Erwin Smith',
+                role: '13-Qo\'mondon',
+                regiment: 'Razvedka Korpusi',
+                quote: '"Askarlarim, g\'azablaning! Askarlarim, hayqiring! Askarlarim, jang qiling!"',
+                badgeColor: 'bg-amber-950/80 text-amber-300 border-amber-600/40',
+                icon: 'fa-chess-king',
+                stats: { combat: 88, intelligence: 98, teamwork: 95, speed: 85 }
+            },
+            {
+                name: 'Reiner Braun',
+                role: 'Zirhli Titan',
+                regiment: 'Marley Jangchilari Vitse-kapitani',
+                quote: '"Men askar emasman... men shunchaki jangchiman."',
+                badgeColor: 'bg-stone-800 text-stone-300 border-stone-500/40',
+                icon: 'fa-shield-halved',
+                stats: { combat: 92, intelligence: 80, teamwork: 90, speed: 78 }
+            }
+        ];
+
+        // 3. TITANLARNI EKRANGA CHIQARISH VA FILTRLASH
+        function renderTitans(filter = 'all') {
+            const grid = document.getElementById('titans-grid');
+            grid.innerHTML = '';
+
+            const filtered = filter === 'all' 
+                ? nineTitansData 
+                : nineTitansData.filter(t => t.category.includes(filter));
+
+            filtered.forEach(titan => {
+                const card = document.createElement('div');
+                card.className = 'aot-card rounded-2xl p-6 cursor-pointer flex flex-col justify-between group';
+                card.onclick = () => openTitanModal(titan);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 group-hover:border-amber-500/50 flex items-center justify-center ${titan.color} text-xl transition-all">
+                                <i class="fa-solid ${titan.icon}"></i>
+                            </div>
+                            <span class="px-2.5 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] font-cinzel font-bold text-amber-400">
+                                ${titan.height.split(' ')[0]}
+                            </span>
+                        </div>
+                        <span class="text-[11px] text-slate-400 uppercase tracking-widest">${titan.jpName}</span>
+                        <h3 class="font-cinzel text-xl font-bold text-white group-hover:text-amber-400 transition-colors mt-0.5">${titan.name}</h3>
+                        <p class="text-xs text-red-400 font-medium mb-3">${titan.enName}</p>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">${titan.shortDesc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 truncate max-w-[70%]">Egasi: <strong class="text-slate-200">${titan.holders.split(',')[0]}</strong></span>
+                        <span class="text-amber-500 font-semibold group-hover:translate-x-1 transition-transform">Batafsil <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterTitans(category) {
+            // Tugmalar aktiv holatini yangilash
+            document.querySelectorAll('.titan-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-red-700', 'text-white', 'border-red-500');
+                btn.classList.add('bg-slate-900', 'text-slate-300', 'border-slate-700');
+            });
+            event.target.classList.remove('bg-slate-900', 'text-slate-300', 'border-slate-700');
+            event.target.classList.add('bg-red-700', 'text-white', 'border-red-500');
+
+            renderTitans(category);
+        }
+
+        // 4. QAHRAMONLARNI EKRANGA CHIQARISH
+        function renderCharacters() {
+            const grid = document.getElementById('characters-grid');
+            charactersData.forEach(char => {
+                const card = document.createElement('div');
+                card.className = 'aot-card rounded-2xl p-6 flex flex-col justify-between';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-red-900 to-slate-900 border-2 border-amber-500/40 flex items-center justify-center text-amber-400 text-xl shrink-0 shadow-lg">
+                                <i class="fa-solid ${char.icon}"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-cinzel text-lg font-bold text-white">${char.name}</h3>
+                                <span class="inline-block mt-1 px-2.5 py-0.5 rounded text-[11px] font-medium border ${char.badgeColor}">
+                                    ${char.role}
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="text-xs italic text-slate-300 bg-slate-950/70 p-3 rounded-xl border-l-2 border-red-600 mb-5">
+                            ${char.quote}
+                        </p>
+
+                        <!-- Statistika Progress Barlar -->
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">Jang mahorati</span>
+                                    <span class="text-red-400 font-bold">${char.stats.combat}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-red-800 to-red-500 rounded-full" style="width: ${char.stats.combat}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">Aql-zakovat</span>
+                                    <span class="text-amber-400 font-bold">${char.stats.intelligence}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-amber-700 to-amber-400 rounded-full" style="width: ${char.stats.intelligence}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">Jamoaviy ish</span>
+                                    <span class="text-blue-400 font-bold">${char.stats.teamwork}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-blue-800 to-blue-400 rounded-full" style="width: ${char.stats.teamwork}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">Tezlik (ODM)</span>
+                                    <span class="text-emerald-400 font-bold">${char.stats.speed}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-emerald-800 to-emerald-400 rounded-full" style="width: ${char.stats.speed}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 5. UCHTA DEVOR INTERAKTIV TANLOVI
+        const wallsInfo = {
+            maria: {
+                title: 'Wall Maria — Eng Tashqi Himoya Halqasi',
+                desc: 'Radiusi 480 km. Asosan dehqonchilik yerlari va chegara shaharlari (Shiganshina) joylashgan. 845-yilda Titanlar tomonidan egallangan va 5 yildan so\'ng qaytarib olingan.'
+            },
+            rose: {
+                title: 'Wall Rose — O\'rta Strategik Devor',
+                desc: 'Radiusi 380 km. Wall Maria qulaganidan so\'ng insoniyatning asosiy boshpanasiga aylangan. Trost va Karanes tumanlari shu devorda joylashgan.'
+            },
+            sina: {
+                title: 'Wall Sina — Qirollik va Poytaxt Devori',
+                desc: 'Radiusi 250 km. Ichida Qirol, zodagonlar va Harbiy Politsiya yashaydigan eng xavfsiz va boy hudud (Mitras poytaxti).'
+            }
+        };
+
+        function selectWall(wallKey) {
+            const info = wallsInfo[wallKey];
+            document.getElementById('wall-title').textContent = info.title;
+            document.getElementById('wall-desc').textContent = info.desc;
+
+            // Vizual highlight
+            ['maria', 'rose', 'sina'].forEach(k => {
+                const el = document.getElementById(`ring-${k}`);
+                el.style.boxShadow = k === wallKey ? '0 0 35px rgba(245, 158, 11, 0.5)' : 'none';
+            });
+        }
+
+        // 6. TITAN MODAL FUNKSIYALARI
+        function openTitanModal(titan) {
+            document.getElementById('modal-jp-name').textContent = titan.jpName;
+            document.getElementById('modal-title').textContent = `${titan.name} (${titan.enName})`;
+            document.getElementById('modal-height').textContent = titan.height;
+            document.getElementById('modal-holders').textContent = titan.holders;
+            document.getElementById('modal-faction').textContent = titan.faction;
+            document.getElementById('modal-abilities').textContent = titan.abilities;
+            document.getElementById('modal-lore').textContent = titan.lore;
+
+            const iconBox = document.getElementById('modal-icon-box');
+            iconBox.innerHTML = `<i class="fa-solid ${titan.icon} ${titan.color}"></i>`;
+
+            const modal = document.getElementById('titan-modal');
+            const content = document.getElementById('titan-modal-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeTitanModal() {
+            const modal = document.getElementById('titan-modal');
+            const content = document.getElementById('titan-modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+
+        // Modal tashqarisini bosganda yopish
+        document.getElementById('titan-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeTitanModal();
+        });
+
+        // 7. SHINZOU WO SASAGEYO EFFEKTI (CHAQMOQ + TOAST)
+        function triggerSalute() {
+            const lightning = document.getElementById('lightning-overlay');
+            lightning.classList.remove('lightning-active');
+            void lightning.offsetWidth; // Reflow
+            lightning.classList.add('lightning-active');
+
+            const toast = document.getElementById('salute-toast');
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 4000);
+        }
+
+        // Mobil menyu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Parallax effekt
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const bg = document.getElementById('parallax-bg');
+            if (bg) {
+                bg.style.transform = `translateY(${scrolled * 0.25}px) rotate(${scrolled * 0.03}deg)`;
+            }
+        });
+
+        // 8. UCHAYOTGAN UCHQUNLAR (EMBERS) VA KUL ZARRALARI ANIMATSIYASI
+        function initEmbersCanvas() {
+            const canvas = document.getElementById('embers-canvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = [];
+            const particleCount = Math.min(65, Math.floor(width / 20));
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.5 + 0.8,
+                    speedY: -(Math.random() * 1.2 + 0.4),
+                    speedX: (Math.random() - 0.5) * 0.8,
+                    alpha: Math.random() * 0.7 + 0.2,
+                    color: Math.random() > 0.35 ? '239, 68, 68' : '245, 158, 11' // Qizil va Oltin uchqunlar
+                });
+            }
+
+            function animateEmbers() {
+                ctx.clearRect(0, 0, width, height);
+
+                particles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX + Math.sin(p.y * 0.01) * 0.3;
+
+                    if (p.y < -10) {
+                        p.y = height + 10;
+                        p.x = Math.random() * width;
+                    }
+                    if (p.x > width + 10) p.x = -10;
+                    if (p.x < -10) p.x = width + 10;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${p.color}, ${p.alpha})`;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = `rgba(${p.color}, 0.8)`;
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animateEmbers);
+            }
+
+            animateEmbers();
+        }
+
+        // Sahifa yuklanganda barcha komponentlarni ishga tushirish
+        window.onload = function() {
+            renderTitans('all');
+            renderCharacters();
+            initEmbersCanvas();
+        };
+    </script>
+</body>
+</html>
